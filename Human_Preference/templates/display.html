@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Label Examples</title>
+    <link rel="stylesheet" media="screen" href ="static/bootstrap.min.css">
+    <meta name="viewport" content = "width=device-width, initial-scale=1.0">
+    <link href="//code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css" rel="Stylesheet">
+    <script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="//code.jquery.com/ui/1.12.0/jquery-ui.min.js" ></script>
+    <link href="static/main.css" rel="Stylesheet">
+
+<script type="text/javascript">
+    $(function() {
+        $('#startButton').click(function() {
+            $('#startButton').hide();
+
+            $.ajax({
+                url: '/startlabelling',
+                type: 'GET',
+                success: function(response) {
+                    index = response['id']
+                    left_src = response['matching_results'].left
+                    right_src = response['matching_results'].right
+
+                    $('.comparison').show();
+
+                    $('#message').show();
+                    $('#message').html("comparison "+index+" of 200");
+
+                    $("#vid_left").find("#vid_left_src").attr("src", left_src);
+                    $("#vid_left").get(0).load()
+
+                    $("#vid_right").find("#vid_right_src").attr("src", right_src);
+                    $("#vid_right").get(0).load()
+
+                    <!--$('#labelling').show();-->
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+
+
+        $('#leftButton').click(function() {
+            $.ajax({
+                url: '/continuelabelling',
+                type: 'GET',
+                data: {choice: 0},
+                success: function(response) {
+
+                    if (response['id'] == -1){
+                        $('#message').show();
+                        $('#message').html("Done for now. Refresh to get the next set of inputs");
+
+                        $('.comparison').hide();
+
+                    }
+                    else{
+
+                        index = response['id']
+                        left_src = response['matching_results'].left
+                        right_src = response['matching_results'].right
+
+                        $('.comparison').show();
+
+                        $('#message').show();
+                        $('#message').html("comparison "+index+" of 200");
+
+                        $("#vid_left").find("#vid_left_src").attr("src", left_src);
+                        $("#vid_left").get(0).load()
+
+                        $("#vid_right").find("#vid_right_src").attr("src", right_src);
+                        $("#vid_right").get(0).load();
+                    }
+
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+
+        $('#rightButton').click(function() {
+            $.ajax({
+                url: '/continuelabelling',
+                type: 'GET',
+                data: {choice: 1},
+                success: function(response) {
+
+                    if (response['id'] == -1){
+                        $('#message').show();
+                        $('#message').html("Done for now. Refresh to get the next set of inputs");
+
+                        $('.comparison').hide();
+
+                    }
+                    else{
+                        index = response['id']
+                        left_src = response['matching_results'].left
+                        right_src = response['matching_results'].right
+
+                        $('.comparison').show();
+
+                        $('#message').show();
+                        $('#message').html("comparison "+index+" of 200");
+
+                        $("#vid_left").find("#vid_left_src").attr("src", left_src);
+                        $("#vid_left").get(0).load()
+
+                        $("#vid_right").find("#vid_right_src").attr("src", right_src);
+                        $("#vid_right").get(0).load();
+
+                    }
+
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+
+
+    });
+</script>
+
+</head>
+<body>
+    <div class="container">
+
+        <div id="start">
+            <button id="startButton" class="btn btn-lg btn-primary btn-block" type="button">Start Labelling</button>
+        </div>
+
+
+        <br/>
+            <div id="message" class="alert alert-success" style="display:none">
+            </div>
+
+            <div class="comparison" style="display:none">
+                <div class="left text-center">
+                    <video id="vid_left" controls autoplay name="media" width="500">
+                        <source src="" type="video/mp4" id="vid_left_src">
+                    Your browser does not support HTML5 video.
+                    </video>
+
+
+                    <button id="leftButton" class="btn btn-sm btn-primary center-block" type="button">Select</button>
+
+                </div>
+
+                <div class="right text-center" >
+                    <video id="vid_right"  controls autoplay name="media" width="500">
+                        <source src="" type="video/mp4" id="vid_right_src">
+                    Your browser does not support HTML5 video.
+                    </video>
+
+                    <button id="rightButton" class="btn btn-sm btn-primary center-block" type="button">Select</button>
+                </div>
+            </div>
+
+        <br/>
+
+
+    </div>
+</body>
+</html>

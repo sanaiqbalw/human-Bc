@@ -1,0 +1,22 @@
+#startButton{
+    width: 30%;
+    margin: 0 auto;
+    margin-top: 30px;
+}
+
+.comparison:first-of-type{
+    display:block;
+}
+
+.left, .right{
+    width:50%;
+    float:left;
+    padding:10px;
+}
+
+#leftButton,
+#rightButton{
+    margin: 0 auto;
+    margin-top : 50px;
+    width: 30%;
+}
