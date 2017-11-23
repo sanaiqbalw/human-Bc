@@ -59,6 +59,8 @@ class ComparisonsCollector:
         with open("Human_Preference/static/Collections/comparisons.json", "w") as fp:
             json.dump(comparison_dict_l, fp, indent=4)
 
+        print('vcreated json')
+
     def collect_comparison_labels(self):
         with open("Human_Preference/static/Collections/comparisons.json",'r') as fp:
             labeled_comparisons = json.load(fp)

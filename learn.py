@@ -6,6 +6,7 @@ from behavioral_cloning import run_cloning
 from envs import make_with_torque_removed, get_timesteps_per_episode
 from rollouts import segments_from_rollout
 from comparisons import ComparisonsCollector
+from rewards_predictor import ComparisonRewardPredictor
 
 CLIP_LENGTH = 1.5
 
@@ -29,6 +30,7 @@ def teach(session, args):
 
     # Step 1 : Get the Behavior cloned policy
     bc_policy, sy_ob = get_bc_policy(args, session)
+
     current_policy = bc_policy
     for iteration in range(args.num_iters):
         # Step 2 : Generate rollouts with this policy and Sample segments from these rollouts
@@ -50,17 +52,21 @@ def teach(session, args):
         is_labelling_done = input("Enter Y when done with labelling, else don't do anything.")
         if is_labelling_done.upper() == "Y":
             labeled_comparisons = collector.collect_comparison_labels()
+            # print(labeled_comparisons)
 
         # Step 5 : Train rewards predictor with data collected in Step 4
+            nn_reward=ComparisonRewardPredictorr(env=args.envname)
+            nn_reward.train_RF(labeled_comparisons,args.reward_iter)
+            new_policy=Pg(args.env,nn_reward)
 
-
-        # Step 6 : Use the reward predictor learned in Step 5 and update the policy
-        # Let's try policy gradients for this step
+            # Step 6 : Use the reward predictor learned in Step 5 and update the policy
+            # Let's try policy gradients for this step
         print("Done with the loop")
     print("Done with the training")
 
 
 def parse_args():
+# python learn.py --expert_policy_file experts/Hopper-v1.pkl --envname Hopper-v1 --num_rollouts 3 --bc_training_epochs 10 --pretrain_labels 2 --num_iters 10
     parser = argparse.ArgumentParser()
     parser.add_argument('--expert_policy_file', type=str, default="experts/Hopper-v1.pkl")
     parser.add_argument('--envname', type=str, default="Hopper-v1")
@@ -81,6 +87,12 @@ def parse_args():
     parser.add_argument('--num_iters', default=5, type=int,
                         help='Number of iterations')
     parser.add_argument('--num_timesteps', default=5e6, type=int)
+    parser.add_argument('--reward_iter', type=int, default=10,
+                    help='number of iterations for training reward under one labelling set')
+    parser.add_argument('--policy_iter', type=int, default=10,
+                    help='number of iterations for training policy under one reward function')
+
+
 
     args = parser.parse_args()
     return args

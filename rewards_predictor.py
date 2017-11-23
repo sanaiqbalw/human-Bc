@@ -1,169 +1,107 @@
-from collections import deque
 import numpy as np
-
 import tensorflow as tf
 
+import matplotlib.pyplot as plt
 
-def build_mlp(
-        input_placeholder,
-        output_size,
-        scope,
-        n_layers=2,
-        size=64,
-        activation=tf.tanh,
-        output_activation=None):
-    with tf.variable_scope(scope):
-        layers = [tf.layers.dense(inputs=input_placeholder, units=size, activation=activation, use_bias=True,
-                                  kernel_initializer=tf.contrib.layers.xavier_initializer(uniform=True))]
 
-        for ix in range(1, n_layers):
-            new_layer = tf.layers.dense(inputs=layers[-1], units=size, activation=activation, use_bias=True,
-                                        kernel_initializer=tf.contrib.layers.xavier_initializer(uniform=True))
-
-            layers.append(new_layer)
-
-        out = tf.layers.dense(inputs=layers[-1], units=output_size, activation=output_activation, use_bias=True,
-                              kernel_initializer=tf.contrib.layers.xavier_initializer(uniform=True))
-
-        return out
 
 
 class ComparisonRewardPredictor():
-    """Predictor that trains a model to predict how much reward is contained in a trajectory segment"""
 
-    def __init__(self, env, summary_writer, comparison_collector, agent_logger, label_schedule):
-        self.comparison_collector = comparison_collector
-
-        # Set up some bookkeeping
-        self._frames_per_segment = CLIP_LENGTH * env.fps
-        self._n_timesteps_per_predictor_training = 1e2  # How often should we train our predictor?
-
-        # Build and initialize our predictor model
-        config = tf.ConfigProto(
-            device_count={'GPU': 0}
-        )
+    def __init__(self, env):
         self.sess = tf.InteractiveSession(config=config)
         self.obs_shape = env.observation_space.shape
         self.discrete_action_space = not hasattr(env.action_space, "shape")
         self.act_shape = (env.action_space.n,) if self.discrete_action_space else env.action_space.shape
-        self.graph = self._build_model()
+        # np.prod :product
+        self.input_dim = np.prod(self.obs_shape) + np.prod(self.act_shape)
+        self.graph = self.train_RF()
         self.sess.run(tf.global_variables_initializer())
 
-    def _predict_rewards(self, obs_segments, act_segments, network):
-        """
-        :param obs_segments: tensor with shape = (batch_size, segment_length) + obs_shape
-        :param act_segments: tensor with shape = (batch_size, segment_length) + act_shape
-        :param network: neural net with .run() that maps obs and act tensors into a (scalar) value tensor
-        :return: tensor with shape = (batch_size, segment_length)
-        """
-        batchsize = tf.shape(obs_segments)[0]
-        segment_length = tf.shape(obs_segments)[1]
 
-        # Temporarily chop up segments into individual observations and actions
-        obs = tf.reshape(obs_segments, (-1,) + self.obs_shape)
-        acts = tf.reshape(act_segments, (-1,) + self.act_shape)
+    def build_mlp(self,input_placeholder,
+                  scope,  output_size=1,n_layers=2,size=64,
+                  activation=tf.tanh,output_activation=None):
 
-        # Run them through our neural network
-        rewards = network.run(obs, acts)
+        with tf.variable_scope(scope):
+            layers = [tf.layers.dense(inputs=input_placeholder, units=size, activation=activation, use_bias=True,
+                                      kernel_initializer=tf.contrib.layers.xavier_initializer(uniform=True))]
 
-        # Group the rewards back into their segments
-        return tf.reshape(rewards, (batchsize, segment_length))
+            for ix in range(1, n_layers):
+                new_layer = tf.layers.dense(inputs=layers[-1], units=size, activation=activation, use_bias=True,
+                                            kernel_initializer=tf.contrib.layers.xavier_initializer(uniform=True))
 
-    def _build_model(self):
-        """
-        Our model takes in path segments with states and actions, and generates Q values.
-        These Q values serve as predictions of the true reward.
-        We can compare two segments and sum the Q values to get a prediction of a label
-        of which segment is better. We then learn the weights for our model by comparing
-        these labels with an authority (either a human or synthetic labeler).
-        """
-        # Set up observation placeholders
-        self.segment_obs_placeholder = tf.placeholder(
-            dtype=tf.float32, shape=(None, None) + self.obs_shape, name="obs_placeholder")
-        self.segment_alt_obs_placeholder = tf.placeholder(
-            dtype=tf.float32, shape=(None, None) + self.obs_shape, name="alt_obs_placeholder")
+                layers.append(new_layer)
 
-        self.segment_act_placeholder = tf.placeholder(
-            dtype=tf.float32, shape=(None, None) + self.act_shape, name="act_placeholder")
-        self.segment_alt_act_placeholder = tf.placeholder(
-            dtype=tf.float32, shape=(None, None) + self.act_shape, name="alt_act_placeholder")
+            # output units =1  for each state-action one reward
+            out = tf.layers.dense(inputs=layers[-1], units=output_size, activation=output_activation, use_bias=True,
+                                  kernel_initializer=tf.contrib.layers.xavier_initializer(uniform=True))
 
-        # A vanilla multi-layer perceptron maps a (state, action) pair to a reward (Q-value)
-        mlp = FullyConnectedMLP(self.obs_shape, self.act_shape)
+            return out
 
-        self.q_value = self._predict_rewards(self.segment_obs_placeholder, self.segment_act_placeholder, mlp)
-        alt_q_value = self._predict_rewards(self.segment_alt_obs_placeholder, self.segment_alt_act_placeholder, mlp)
+    def train_RF(self,labeled_comparisons,reward_iter):
 
-        # We use trajectory segments rather than individual (state, action) pairs because
-        # video clips of segments are easier for humans to evaluate
-        segment_reward_pred_left = tf.reduce_sum(self.q_value, axis=1)
-        segment_reward_pred_right = tf.reduce_sum(alt_q_value, axis=1)
-        reward_logits = tf.stack([segment_reward_pred_left, segment_reward_pred_right], axis=1)  # (batch_size, 2)
+        minibatch_size = min(64, len(labeled_comparisons))
+        labeled_comparisons = np.random.sample(labeled_comparisons, minibatch_size)
 
-        self.labels = tf.placeholder(dtype=tf.int32, shape=(None,), name="comparison_labels")
-
-        # delta = 1e-5
-        # clipped_comparison_labels = tf.clip_by_value(self.comparison_labels, delta, 1.0-delta)
-
-        data_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=reward_logits, labels=self.labels)
-
-        self.loss_op = tf.reduce_mean(data_loss)
-
-        global_step = tf.Variable(0, name='global_step', trainable=False)
-        self.train_op = tf.train.AdamOptimizer().minimize(self.loss_op, global_step=global_step)
-
-        return tf.get_default_graph()
-
-    def predict_reward(self, path):
-        """Predict the reward for each step in a given path"""
-        with self.graph.as_default():
-            q_value = self.sess.run(self.q_value, feed_dict={
-                self.segment_obs_placeholder: np.asarray([path["obs"]]),
-                self.segment_act_placeholder: np.asarray([path["actions"]]),
-                K.learning_phase(): False
-            })
-        return q_value[0]
-
-    def path_callback(self, path):
-        path_length = len(path["obs"])
-        self._steps_since_last_training += path_length
-
-        self.agent_logger.log_episode(path)
-
-        # We may be in a new part of the environment, so we take new segments to build comparisons from
-        segment = sample_segment_from_path(path, int(self._frames_per_segment))
-        if segment:
-            self.recent_segments.append(segment)
-
-        # If we need more comparisons, then we build them from our recent segments
-        if len(self.comparison_collector) < int(self.label_schedule.n_desired_labels):
-            self.comparison_collector.add_segment_pair(
-                random.choice(self.recent_segments),
-                random.choice(self.recent_segments))
-
-        # Train our predictor every X steps
-        if self._steps_since_last_training >= int(self._n_timesteps_per_predictor_training):
-            self.train_predictor()
-            self._steps_since_last_training -= self._steps_since_last_training
-
-    def train_predictor(self):
-        self.comparison_collector.label_unlabeled_comparisons()
-
-        minibatch_size = min(64, len(self.comparison_collector.labeled_decisive_comparisons))
-        labeled_comparisons = np.random.sample(self.comparison_collector.labeled_decisive_comparisons, minibatch_size)
+        # These are trajectory segments rather than individual (state, action) pairs
         left_obs = np.asarray([comp['left']['obs'] for comp in labeled_comparisons])
         left_acts = np.asarray([comp['left']['actions'] for comp in labeled_comparisons])
         right_obs = np.asarray([comp['right']['obs'] for comp in labeled_comparisons])
         right_acts = np.asarray([comp['right']['actions'] for comp in labeled_comparisons])
         labels = np.asarray([comp['label'] for comp in labeled_comparisons])
 
-        with self.graph.as_default():
-            _, loss = self.sess.run([self.train_op, self.loss_op], feed_dict={
-                self.segment_obs_placeholder: left_obs,
-                self.segment_act_placeholder: left_acts,
-                self.segment_alt_obs_placeholder: right_obs,
-                self.segment_alt_act_placeholder: right_acts,
-                self.labels: labels,
-                K.learning_phase(): True
-            })
-            self._elapsed_predictor_training_iters += 1
+
+        # todo:stack left and right observations and action:
+        obs=tf.stack([ left_obs,right_obs], axis=1)
+        act=tf.stack([ left_acts,right_acts], axis=1)
+
+
+        #todo: convert segments into individual action and rewards
+        # 1. get segment length
+        batchsize = tf.shape(left_obs)[0]
+        segment_length = tf.shape(left_obs)[1]
+
+        # 2. chop up segments into individual observations and actions
+        obs = tf.reshape(obs, (-1,) + self.obs_shape)
+        acts = tf.reshape(acts, (-1,) + self.act_shape)
+
+        # flatten observatiion array and append actions to amke input for reward function
+        # https://www.tensorflow.org/api_docs/python/tf/contrib/layers/flatten
+
+        flat_obs = tf.contrib.layers.flatten(obs)
+        input_ = tf.concat([flat_obs, acts], axis=1)
+
+
+        self.input_ph=tf.placeholder(tf.float32, shape=[None, self.input_dim])
+        self.output_ph= tf.placeholder(dtype=tf.int32, shape=(None,), name="comparison_labels")
+
+
+        # create  mlp for reward prediction and get  predicted rewards:
+        reward_logits=self.build_mlp(self.input_ph, scope="rewardPredictor")
+
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=reward_logits, labels=self.output_ph)
+
+        self.loss_op = tf.reduce_mean(loss)
+
+        self.train_op = tf.train.AdamOptimizer(.001).minimize(loss_op)
+
+
+        for i in range(reward_iter):
+            with self.graph.as_default():
+                 _, loss = self.sess.run([self.train_op, self.loss_op],feed_dict={self.output_ph:labels,self.input_ph: input_})
+        print(" Reward Function trained with one dataset.")
+
+        return tf.get_default_graph()
+
+
+def predict_reward(self, path):
+    """Predict the reward for each step in a given path"""
+    with self.graph.as_default():
+        reward = self.sess.run(self.reward_logits, feed_dict={self.input_ph:path})
+    return reward[0]
+
+
+
+
+
