@@ -1,62 +1,14 @@
 [
     {
-        "uuid": "6f89f29b-4ec5-49c0-9b4d-2c577a929106",
+        "uuid": "98035a5f-15f8-4ff9-aef8-46a90286237a",
+        "left": "static/Collections/run0/98035a5f-15f8-4ff9-aef8-46a90286237a-left.mp4",
         "labels": null,
-        "left": "static/Collections/run0/6f89f29b-4ec5-49c0-9b4d-2c577a929106-left.mp4",
-        "right": "static/Collections/run0/6f89f29b-4ec5-49c0-9b4d-2c577a929106-right.mp4"
+        "right": "static/Collections/run0/98035a5f-15f8-4ff9-aef8-46a90286237a-right.mp4"
     },
     {
-        "uuid": "0e75280b-f372-4b2b-8f10-6c38ee74152c",
+        "uuid": "b14630dd-72ee-49bd-adc8-84b75612785e",
+        "left": "static/Collections/run0/b14630dd-72ee-49bd-adc8-84b75612785e-left.mp4",
         "labels": null,
-        "left": "static/Collections/run0/0e75280b-f372-4b2b-8f10-6c38ee74152c-left.mp4",
-        "right": "static/Collections/run0/0e75280b-f372-4b2b-8f10-6c38ee74152c-right.mp4"
-    },
-    {
-        "uuid": "a55faed8-6c7f-4daf-8778-1edabb4daff1",
-        "labels": null,
-        "left": "static/Collections/run0/a55faed8-6c7f-4daf-8778-1edabb4daff1-left.mp4",
-        "right": "static/Collections/run0/a55faed8-6c7f-4daf-8778-1edabb4daff1-right.mp4"
-    },
-    {
-        "uuid": "2e480c10-4ca3-4867-8587-f0d686de5f31",
-        "labels": null,
-        "left": "static/Collections/run0/2e480c10-4ca3-4867-8587-f0d686de5f31-left.mp4",
-        "right": "static/Collections/run0/2e480c10-4ca3-4867-8587-f0d686de5f31-right.mp4"
-    },
-    {
-        "uuid": "bb532ae4-fa9d-4509-913a-3458b1a06f90",
-        "labels": null,
-        "left": "static/Collections/run0/bb532ae4-fa9d-4509-913a-3458b1a06f90-left.mp4",
-        "right": "static/Collections/run0/bb532ae4-fa9d-4509-913a-3458b1a06f90-right.mp4"
-    },
-    {
-        "uuid": "3d01d1c9-1039-4339-8533-aea443b8f73d",
-        "labels": null,
-        "left": "static/Collections/run0/3d01d1c9-1039-4339-8533-aea443b8f73d-left.mp4",
-        "right": "static/Collections/run0/3d01d1c9-1039-4339-8533-aea443b8f73d-right.mp4"
-    },
-    {
-        "uuid": "3f018c50-61a1-4e8c-9ead-23a99187b94b",
-        "labels": null,
-        "left": "static/Collections/run0/3f018c50-61a1-4e8c-9ead-23a99187b94b-left.mp4",
-        "right": "static/Collections/run0/3f018c50-61a1-4e8c-9ead-23a99187b94b-right.mp4"
-    },
-    {
-        "uuid": "6ae22502-0e53-40e4-afaf-1ab78ba30809",
-        "labels": null,
-        "left": "static/Collections/run0/6ae22502-0e53-40e4-afaf-1ab78ba30809-left.mp4",
-        "right": "static/Collections/run0/6ae22502-0e53-40e4-afaf-1ab78ba30809-right.mp4"
-    },
-    {
-        "uuid": "795d8ee3-16d6-41af-94a5-407af9d20162",
-        "labels": null,
-        "left": "static/Collections/run0/795d8ee3-16d6-41af-94a5-407af9d20162-left.mp4",
-        "right": "static/Collections/run0/795d8ee3-16d6-41af-94a5-407af9d20162-right.mp4"
-    },
-    {
-        "uuid": "b5541927-0028-4c5d-994f-bfe80451ca5d",
-        "labels": null,
-        "left": "static/Collections/run0/b5541927-0028-4c5d-994f-bfe80451ca5d-left.mp4",
-        "right": "static/Collections/run0/b5541927-0028-4c5d-994f-bfe80451ca5d-right.mp4"
+        "right": "static/Collections/run0/b14630dd-72ee-49bd-adc8-84b75612785e-right.mp4"
     }
 ]

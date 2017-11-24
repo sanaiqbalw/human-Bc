@@ -2,12 +2,12 @@ import argparse
 import gym
 import numpy as np
 import tensorflow as tf
-from behavioral_cloning import run_cloning
+from policy import PolicyPredictor
 from envs import make_with_torque_removed, get_timesteps_per_episode
 from rollouts import segments_from_rollout
 from comparisons import ComparisonsCollector
-from rewards_predictor import ComparisonRewardPredictor
-
+from actual_reward_file import RewardPredictor
+from run_expert import get_expert_data
 CLIP_LENGTH = 1.5
 
 
@@ -18,28 +18,25 @@ def get_tf_session():
     return session
 
 
-def get_bc_policy(args, session):
-    # Returns a trained BC policy
-    bc_policy = run_cloning(args, session)
-    return bc_policy
-
-
-def teach(session, args):
+def teach(session,policy,bc_policy, sy_ob,args):
+    print('I am entering teach')
     pretrain_labels = args.pretrain_labels
     num_timesteps = int(args.num_timesteps)
 
     # Step 1 : Get the Behavior cloned policy
-    bc_policy, sy_ob = get_bc_policy(args, session)
-
-    current_policy = bc_policy
     for iteration in range(args.num_iters):
+        print('I am entering segmenter')
         # Step 2 : Generate rollouts with this policy and Sample segments from these rollouts
         pretrain_segments = segments_from_rollout(args.envname, make_with_torque_removed,
                                                   bc_policy, sy_ob, session,
                                                   n_desired_segments=pretrain_labels * 2,
                                                   clip_length_in_seconds=CLIP_LENGTH)
 
+        print('segmented approaching reward')
+
         # Step 3 : Instantiate comparisons
+
+        # **************COMMENTING COMAPRISON.PY FUNCTION FOR TEST****************
         collector = ComparisonsCollector(pretrain_segments,pretrain_labels, iteration,
                                          make_with_torque_removed(args.envname))
         collector.process_comparisons()
@@ -51,16 +48,22 @@ def teach(session, args):
 
         is_labelling_done = input("Enter Y when done with labelling, else don't do anything.")
         if is_labelling_done.upper() == "Y":
+
+            # what is the typey of labelled _comparisons
             labeled_comparisons = collector.collect_comparison_labels()
-            # print(labeled_comparisons)
+            # print((labeled_comparisons))
 
         # Step 5 : Train rewards predictor with data collected in Step 4
-            nn_reward=ComparisonRewardPredictorr(env=args.envname)
-            nn_reward.train_RF(labeled_comparisons,args.reward_iter)
-            new_policy=Pg(args.env,nn_reward)
+            nn_reward=RewardPredictor(args,session)
+            nn_reward.train_RF(labeled_comparisons)
+
 
             # Step 6 : Use the reward predictor learned in Step 5 and update the policy
             # Let's try policy gradients for this step
+            new_policy=policy.train_policy_grad(args,session,nn_reward)
+
+
+
         print("Done with the loop")
     print("Done with the training")
 
@@ -103,8 +106,15 @@ def main():
     session = get_tf_session()
     # Seed the generator
     np.random.seed(7)
+    # expert_obs,expert_acts, _ = get_expert_data(args.expert_policy_file, args.envname, args.max_timesteps, args.num_rollouts)
+    # print("Got rollouts from expert.")
+
+    # Get BC Policy
+    policy=PolicyPredictor(args,session)
+    bc_policy,sy_ob=policy.train_bc_policy()
     tf.set_random_seed(11)
-    teach(session, args)
+    # improve policy
+    teach(session,policy, bc_policy,sy_ob,args)
 
 
 if __name__ == '__main__':

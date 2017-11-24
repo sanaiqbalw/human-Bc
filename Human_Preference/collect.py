@@ -22,24 +22,26 @@ labels = []
 idx = 0
 
 
-# app.run(host= '17.220.23.173', debug=False)
+# app.run(host= '17.220.23.173', debug=False)    
 
-# @app.route('/autocomplete', methods=['GET'])
-# def autocomplete():
-#     search = request.args.get('q')
-#     print(search)
-#     results = DEV_TRIE.start_with_prefix(search.strip())
-#
-#     return jsonify(matching_results=results)
-#
-#
-# @app.route('/fullsearch', methods=['GET'])
-# def fullsearch():
-#     search = request.args.get('q')
-#     print(search)
-#     results = df[df.Shanghainese.str.contains(search.strip())].Shanghainese.tolist()
-#
-#     return jsonify(matching_results=results)
+# curl http://0.0.0.0:5000/ -X GET
+
+@app.route('/autocomplete', methods=['GET'])
+def autocomplete():
+    search = request.args.get('q')
+    print(search)
+    results = DEV_TRIE.start_with_prefix(search.strip())
+
+    return jsonify(matching_results=results)
+
+
+@app.route('/fullsearch', methods=['GET'])
+def fullsearch():
+    search = request.args.get('q')
+    print(search)
+    results = df[df.Shanghainese.str.contains(search.strip())].Shanghainese.tolist()
+
+    return jsonify(matching_results=results)
 
 @app.route('/startlabelling', methods=['GET'])
 def serve_first_data():
@@ -84,3 +86,4 @@ if __name__ == "__main__":
         app.run(host='0.0.0.0', port=port)
     else:
         app.run()
+
