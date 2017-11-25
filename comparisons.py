@@ -37,35 +37,35 @@ class ComparisonsCollector:
 
         # # Pick every comparison object
         # # For both left and right create 2 filenames, call to save video
-        # count = 0
-        # for comparison in self._comparisons:
-        #     left_path = "%s-%s.mp4" % (comparison.uuid, "left")
-        #     right_path = "%s-%s.mp4" % (comparison.uuid, "right")
+        count = 0
+        for comparison in self._comparisons:
+            left_path = "%s-%s.mp4" % (comparison["uuid"], "left")
+            right_path = "%s-%s.mp4" % (comparison["uuid"], "right")
 
-        #     comparison.filenames = [os.path.join("static/Collections/run" + str(self.run_number) + "/", left_path),
-        #                             os.path.join("static/Collections/run" + str(self.run_number) + "/", right_path)]
+            comparison["filenames"] = [os.path.join("static/Collections/run" + str(self.run_number) + "/", left_path),
+                                    os.path.join("static/Collections/run" + str(self.run_number) + "/", right_path)]
 
-        #     write_segment_to_video(comparison.left, comparison.filenames[0], self.env)
-        #     write_segment_to_video(comparison.right, comparison.filenames[1], self.env)
+            write_segment_to_video(comparison["left"], os.path.join("Human_Preference/",comparison["filenames"][0]), self.env)
+            write_segment_to_video(comparison["right"], os.path.join("Human_Preference/",comparison["filenames"][1]), self.env)
 
-        #     count += 1
-        #     if count % 20 == 0:
-        #         print("Saved {}/{} comparisons".format(count, len(self._comparisons)))
+            count += 1
+            if count % 20 == 0:
+                print("Saved {}/{} comparisons".format(count, len(self._comparisons)))
 
-        # print("Successfully saved {} comparison videos".format(len(self._comparisons)))
+        print("Successfully saved {} comparison videos".format(len(self._comparisons)))
 
-        # # Save unlabeled comparisons as a json
-        # comparison_dict_l = [{"uuid": str(comp.uuid), "left": comp.filenames[0],
-        #                       "right": comp.filenames[1], "labels": comp.label}
-        #                      for comp in self._comparisons]
+        # Save unlabeled comparisons as a json
+        comparison_dict_l = [ {"uuid": str(comp["uuid"]), "left": comp["filenames"][0],
+                               "right": comp["filenames"][1], "labels": comp["label"]}
+                              for comp in self._comparisons]
 
-        # with open("Human_Preference/static/Collections/comparisons.json", "w") as fp:
-        #     json.dump(comparison_dict_l, fp, indent=4)
+        with open("Human_Preference/static/Collections/comparisons.json", "w") as fp:
+            json.dump(comparison_dict_l, fp, indent=4)
 
         print('created json')
 
     def collect_comparison_labels(self):
-        with open("Human_Preference/static/Collections/comparisons0.json",'r') as fp:
+        with open("Human_Preference/static/Collections/comparisons.json",'r') as fp:
             labeled_comparisons = json.load(fp)
             # print(labeled_comparisons)
         # Apply these labels on our comparisons object

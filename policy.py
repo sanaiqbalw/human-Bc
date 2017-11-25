@@ -3,7 +3,7 @@ import gym
 import numpy as np
 import tensorflow as tf
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 from run_expert import get_expert_data
@@ -154,7 +154,8 @@ class PolicyPredictor():
             with self.graph.as_default():
                 mb_obs, mb_acts = get_minibatch(expert_data, self.args.bc_minibatch_size)
                 _, training_loss = self.sess.run([self.train_step, self.loss_op], feed_dict={self.x: mb_obs, self.y: mb_acts})
-            print('BC LOSS:',i,training_loss)
+            if i%100==0:
+                print('BC LOSS:',i,training_loss)
         print("Expert policy cloned.")
         print("="*30)
         return self.nn_policy_a,self.x
