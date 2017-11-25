@@ -60,7 +60,7 @@ def teach(session,policy,bc_policy, sy_ob,args):
 
             # Step 6 : Use the reward predictor learned in Step 5 and update the policy
             # Let's try policy gradients for this step
-            new_policy=policy.train_policy_grad(args,session,nn_reward)
+            new_policy=policy.train_policy_grad(nn_reward)
 
 
 

@@ -15,6 +15,8 @@ import tensorflow as tf
 from run_expert import get_expert_data
 
 
+
+
 def get_tf_session():
     """ Returning a session. """
     tf.reset_default_graph()

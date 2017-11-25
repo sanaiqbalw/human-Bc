@@ -121,7 +121,7 @@ class RewardPredictor():
 
         return tf.get_default_graph()
 
-    def predict_reward(self, path):
+    def predict_rewards_path(self, path):
         """Predict the reward for each step in a given path"""
         with self.graph.as_default():
             q_value = self.sess.run(self.q_value, feed_dict={
@@ -130,6 +130,22 @@ class RewardPredictor():
                 K.learning_phase(): False
             })
         return q_value[0]
+
+
+
+    def predict_reward(self, ob,ac):
+        
+        ob=ob.reshape(1,1, self.obs_shape[-1])
+        ac=ac.reshape(1,1, self.act_shape[-1])
+        """Predict the reward for each step in a given path"""
+        with self.graph.as_default():
+            q_value = self.sess.run(self.q_value, feed_dict={
+                self.segment_obs_placeholder: np.asarray(ob),
+                self.segment_act_placeholder: np.asarray(ac),
+                K.learning_phase(): False
+            })
+        return q_value[0]
+
 
    
     def train_RF(self,labeled_comparisons):
