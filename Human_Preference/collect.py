@@ -28,7 +28,8 @@ idx = 0
 
 @app.route('/startlabelling', methods=['GET'])
 def serve_first_data():
-    global idx
+    global idx, comps
+    comps = get_comparisons()
     print("Received first request")
     first_comp = comps[idx]
     idx += 1
@@ -37,7 +38,7 @@ def serve_first_data():
 
 @app.route('/continuelabelling', methods=['GET'])
 def serve_data():
-    global idx,comps
+    global idx
     # record choice
     past_choice = request.args.get('choice')
     comps[idx-1]['labels'] = past_choice
@@ -52,8 +53,6 @@ def serve_data():
         with open(json_file, "w") as fp:
             json.dump(comps, fp, indent=4)
         idx = 0
-        comps = get_comparisons()
-
         return jsonify(matching_results=None, id=-1)
 
     comp = comps[idx]
