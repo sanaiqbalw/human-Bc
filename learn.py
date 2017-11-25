@@ -22,13 +22,13 @@ def teach(session,policy,bc_policy, sy_ob,args):
     print('I am entering teach')
     pretrain_labels = args.pretrain_labels
     num_timesteps = int(args.num_timesteps)
-
+    curr_policy = bc_policy
     # Step 1 : Get the Behavior cloned policy
     for iteration in range(args.num_iters):
         print('I am entering segmenter')
         # Step 2 : Generate rollouts with this policy and Sample segments from these rollouts
         pretrain_segments = segments_from_rollout(args.envname, make_with_torque_removed,
-                                                  bc_policy, sy_ob, session,
+                                                  curr_policy, sy_ob, session,
                                                   n_desired_segments=pretrain_labels * 2,
                                                   clip_length_in_seconds=CLIP_LENGTH)
 
@@ -60,7 +60,7 @@ def teach(session,policy,bc_policy, sy_ob,args):
 
             # Step 6 : Use the reward predictor learned in Step 5 and update the policy
             # Let's try policy gradients for this step
-            new_policy=policy.train_policy_grad(nn_reward)
+            curr_policy=policy.train_policy_grad(nn_reward)
 
 
 

@@ -26,23 +26,6 @@ idx = 0
 
 # curl http://0.0.0.0:5000/ -X GET
 
-@app.route('/autocomplete', methods=['GET'])
-def autocomplete():
-    search = request.args.get('q')
-    print(search)
-    results = DEV_TRIE.start_with_prefix(search.strip())
-
-    return jsonify(matching_results=results)
-
-
-@app.route('/fullsearch', methods=['GET'])
-def fullsearch():
-    search = request.args.get('q')
-    print(search)
-    results = df[df.Shanghainese.str.contains(search.strip())].Shanghainese.tolist()
-
-    return jsonify(matching_results=results)
-
 @app.route('/startlabelling', methods=['GET'])
 def serve_first_data():
     global idx
@@ -54,7 +37,7 @@ def serve_first_data():
 
 @app.route('/continuelabelling', methods=['GET'])
 def serve_data():
-    global idx
+    global idx,comps
     # record choice
     past_choice = request.args.get('choice')
     comps[idx-1]['labels'] = past_choice
@@ -68,6 +51,9 @@ def serve_data():
         json_file = os.path.join(SRC_DIR, SRC_FILE)
         with open(json_file, "w") as fp:
             json.dump(comps, fp, indent=4)
+        idx = 0
+        comps = get_comparisons()
+
         return jsonify(matching_results=None, id=-1)
 
     comp = comps[idx]
