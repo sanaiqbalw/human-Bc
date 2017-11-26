@@ -184,9 +184,10 @@ class PolicyPredictor():
                     _, training_loss = self.sess.run([self.train_op_pg , self.loss_pg], feed_dict={self.x: mb_obs, self.y: mb_acts,self.reward:reward_obtained})
                 cost=np.mean(training_loss)
                 reward_actual_in_env=self.get_rewards()
+            if i%100==0:
 
-            print('policy gradient Mean Loss:',i,cost)
-            print('BC mean REWARDS:',i,'--',reward_actual_in_env)
+                print('policy gradient Mean Loss:',i,cost)
+                print('policy gradient Mean Reward:',i,'--',reward_actual_in_env)
         print("finished policy gradient.")
         print("="*30)
         return self.nn_policy_a,self.x

@@ -171,7 +171,9 @@ class RewardPredictor():
 
 
                 })
-                print("Reward training loss:..",i,loss)
+
+                if i%100==0:
+                    print("Reward training loss:..",i,loss)
         print(" Reward Function trained with one dataset.")
 
 
