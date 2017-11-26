@@ -2,6 +2,7 @@ import argparse
 import gym
 import numpy as np
 import tensorflow as tf
+import scipy.signal
 
 # import matplotlib.pyplot as plt
 
@@ -98,7 +99,7 @@ class PolicyPredictor():
         """Creates graph of the neural net"""
         self.x= tf.placeholder(tf.float32, shape=[None, self.obs_shape[-1]])
         self.y= tf.placeholder(tf.float32, shape=[None, self.act_shape[-1]])
-        self.reward = tf.placeholder(tf.float32, [None])
+        self.reward = tf.placeholder(tf.float32, [None,1])
 
             # import pdb;pdb.set_trace()
 
@@ -131,6 +132,7 @@ class PolicyPredictor():
         self.sigma = tf.exp(tf.get_variable(name='variance',shape=[self.act_shape[-1]], initializer=tf.zeros_initializer()))
         # logstd should just be a trainable variable, not a network output.
         self.sigma = tf.nn.softplus(self.sigma) + 1e-5
+        
         self.normal_dist = tf.contrib.distributions.Normal(self.mu, self.sigma)
         self.action = self.normal_dist._sample_n(1)
     
@@ -150,13 +152,13 @@ class PolicyPredictor():
         expert_data, _ = get_expert_data(self.args.expert_policy_file, self.args.envname, self.args.max_timesteps, self.args.num_rollouts)
         print("Got rollouts from expert.")
 
-        for i in range(self.args.bc_training_epochs):
+        for i in range(self.args.bc_training_epochs+1):
             with self.graph.as_default():
                 mb_obs, mb_acts = get_minibatch(expert_data, self.args.bc_minibatch_size)
                 _, training_loss = self.sess.run([self.train_step, self.loss_op], feed_dict={self.x: mb_obs, self.y: mb_acts})
                 reward_actual_in_env=self.get_rewards()
 
-            if i%100==0:
+            if i%50==0:
                 print('BC LOSS:',i,training_loss)
                 print('BC mean REWARDS:',i,'--',reward_actual_in_env)
         print("Expert policy cloned.")
@@ -169,13 +171,18 @@ class PolicyPredictor():
         paths=self.policy_rollout(reward_fn)
         mb_obs = np.concatenate([path["observation"] for path in paths])
         mb_acts = np.concatenate([path["action"] for path in paths])
-        reward_obtained = [path["reward"].sum() for path in paths]
-        print(mb_obs.shape,mb_acts.shape)
+        reward_obtained = np.concatenate([self.discount(path["reward"]) for path in paths])
+
+        
+
+        print()
+        print(mb_obs.shape,mb_acts.shape,reward_obtained.shape)
+        # reward_obtained = np.concatenate([path["reward"].sum() for path in paths])
 
 
         total_timesteps = 0
         epoch_loss_reward_all=[]
-        for i in range(self.args.policy_iter):
+        for i in range(self.args.policy_iter+1):
             timesteps_this_batch = 0
             epoch_loss_reward=[]
             cost=0
@@ -184,7 +191,7 @@ class PolicyPredictor():
                     _, training_loss = self.sess.run([self.train_op_pg , self.loss_pg], feed_dict={self.x: mb_obs, self.y: mb_acts,self.reward:reward_obtained})
                 cost=np.mean(training_loss)
                 reward_actual_in_env=self.get_rewards()
-            if i%100==0:
+            if i%50==0:
 
                 print('policy gradient Mean Loss:',i,cost)
                 print('policy gradient Mean Reward:',i,'--',reward_actual_in_env)
@@ -192,6 +199,7 @@ class PolicyPredictor():
         print("="*30)
         return self.nn_policy_a,self.x
         
+
 
 
     def predict_action_bc(self, state):
@@ -210,7 +218,7 @@ class PolicyPredictor():
         returns = []
         horizon=int(self.args.num_timesteps)
 
-        for _ in range(self.args.num_rollouts):
+        for _ in range(self.args.num_rollouts+1):
             obs = self.env.reset()
             done = False
             totalr = 0
@@ -227,6 +235,13 @@ class PolicyPredictor():
             returns.append(totalr)
 
         return np.mean(returns)
-             
+
+    def discount(self,x, gamma=1):
+        """
+        Compute discounted sum of future values. Returns a list, NOT a scalar!
+        out[i] = in[i] + gamma * in[i+1] + gamma^2 * in[i+2] + ...
+        """
+        return scipy.signal.lfilter([1],[1,-gamma],x[::-1], axis=0)[::-1]
+                 
 
 

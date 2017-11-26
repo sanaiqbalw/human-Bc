@@ -24,7 +24,7 @@ def teach(session,policy,bc_policy, sy_ob,args):
     num_timesteps = int(args.num_timesteps)
     curr_policy = bc_policy
     # Step 1 : Get the Behavior cloned policy
-    for iteration in range(args.num_iters):
+    for iteration in range(args.num_iters+1):
         print('I am entering segmenter')
         # Step 2 : Generate rollouts with this policy and Sample segments from these rollouts
         pretrain_segments = segments_from_rollout(args.envname, make_with_torque_removed,
@@ -120,3 +120,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+# python learn.py --expert_policy_file experts/Hopper-v1.pkl --envname Hopper-v1 --num_rollouts 10 --bc_training_epochs 200 --reward_iter 100 --num_iters 3 --num_timesteps 5000 --policy_iter 100
+

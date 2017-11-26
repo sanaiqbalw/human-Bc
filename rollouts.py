@@ -79,7 +79,7 @@ def segments_from_rollout(env_id, make_env, policy_fn, sy_ob, session, n_desired
             if segment:
                 segments.append(segment)
 
-            if len(segments) % 10 == 0 and len(segments) > 0:
+            if len(segments) % 50 == 0 and len(segments) > 0:
                 print("Collected %s/%s segments" % (len(segments), n_desired_segments))
 
     print("Successfully collected %s segments" % (len(segments)))

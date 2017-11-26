@@ -159,7 +159,7 @@ class RewardPredictor():
             print('REMOVING ########',name)
             os.remove(name)
  
-        for i in range(self.args.reward_iter):
+        for i in range(self.args.reward_iter+1):
             with self.graph.as_default():
                 _, loss = self.sess.run([self.train_op, self.loss_op], feed_dict={
                     self.segment_obs_placeholder: left_obs,
@@ -172,7 +172,7 @@ class RewardPredictor():
 
                 })
 
-                if i%100==0:
+                if i%50==0:
                     print("Reward training loss:..",i,loss)
         print(" Reward Function trained with one dataset.")
 
