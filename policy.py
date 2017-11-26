@@ -53,14 +53,11 @@ class PolicyPredictor():
             for hor in range(0,horizon):
 
                 obs.append(ob)
-                # ac=self.get_pg_action(ob)
-                ac = self.sess.run(self.action, feed_dict={self.x: ob[None]})[0]
-         
-                # combine input and output to send to reawrd function
-                # ac_ob = np.concatenate((ob, ac),axis=0)
-                # input_=ac_ob.reshape(1,ac_ob.shape[0])
-                # print(input_.shape)
-                # get reward from reward function
+                ac=self.get_pg_action(ob[None])
+                try:
+                    ac=np.squeeze(ac,axis=(0))
+                except:
+                    pass
                 rew0=reward_fn.predict_reward(ob,ac)
 
                 acs.append(ac)
@@ -136,7 +133,9 @@ class PolicyPredictor():
         self.sigma = tf.nn.softplus(self.sigma) + 1e-5
         self.normal_dist = tf.contrib.distributions.Normal(self.mu, self.sigma)
         self.action = self.normal_dist._sample_n(1)
+    
         self.action = tf.clip_by_value(self.action, env.action_space.low[0], env.action_space.high[0])
+      
         # Loss and train op
 
         self.loss_pg = -tf.reduce_mean(self.normal_dist.log_prob(self.action) * self.reward)
@@ -158,6 +157,7 @@ class PolicyPredictor():
                 print('BC LOSS:',i,training_loss)
         print("Expert policy cloned.")
         print("="*30)
+
         return self.nn_policy_a,self.x
 
     def train_policy_grad(self,reward_fn):
@@ -171,10 +171,6 @@ class PolicyPredictor():
 
         total_timesteps = 0
         epoch_loss_reward_all=[]
-
-        
-
-
         for i in range(self.args.policy_iter):
             timesteps_this_batch = 0
             epoch_loss_reward=[]
@@ -186,6 +182,7 @@ class PolicyPredictor():
             print('policy gradient Mean Loss:',i,cost)
         print("finished policy gradient.")
         print("="*30)
+        return self.nn_policy_a,self.x
         
 
 

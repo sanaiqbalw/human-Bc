@@ -1,0 +1,14 @@
+[
+    {
+        "uuid": "0867e443-beab-4931-8cdc-903acdaee9aa",
+        "left": "static/Collections/run0/0867e443-beab-4931-8cdc-903acdaee9aa-left.mp4",
+        "right": "static/Collections/run0/0867e443-beab-4931-8cdc-903acdaee9aa-right.mp4",
+        "labels": "0"
+    },
+    {
+        "uuid": "4face28a-2481-42fe-b56d-7ac74eb4f422",
+        "left": "static/Collections/run0/4face28a-2481-42fe-b56d-7ac74eb4f422-left.mp4",
+        "right": "static/Collections/run0/4face28a-2481-42fe-b56d-7ac74eb4f422-right.mp4",
+        "labels": "1"
+    }
+]

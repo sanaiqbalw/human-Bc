@@ -32,7 +32,7 @@ def teach(session,policy,bc_policy, sy_ob,args):
                                                   n_desired_segments=pretrain_labels * 2,
                                                   clip_length_in_seconds=CLIP_LENGTH)
 
-        print('segmented approaching reward')
+        print('segmented!.. approaching reward')
 
         # Step 3 : Instantiate comparisons
 
@@ -49,7 +49,7 @@ def teach(session,policy,bc_policy, sy_ob,args):
         is_labelling_done = input("Enter Y when done with labelling, else don't do anything.")
         if is_labelling_done.upper() == "Y":
 
-            # what is the typey of labelled _comparisons
+            # what is the type of labelled _comparisons
             labeled_comparisons = collector.collect_comparison_labels()
             # print((labeled_comparisons))
 
@@ -60,7 +60,8 @@ def teach(session,policy,bc_policy, sy_ob,args):
 
             # Step 6 : Use the reward predictor learned in Step 5 and update the policy
             # Let's try policy gradients for this step
-            curr_policy=policy.train_policy_grad(nn_reward)
+            curr_policy,sy_ob=policy.train_policy_grad(nn_reward)
+            print('TRained pG:',curr_policy.shape,sy_ob.shape)
 
 
 
@@ -114,7 +115,7 @@ def main():
     bc_policy,sy_ob=policy.train_bc_policy()
     tf.set_random_seed(11)
     # improve policy
-    teach(session,policy, bc_policy,sy_ob,args)
+    teach(session,policy,bc_policy,sy_ob,args)
 
 
 if __name__ == '__main__':

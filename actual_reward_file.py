@@ -1,5 +1,6 @@
 
 import os
+import glob
 import os.path as osp
 import random
 from collections import deque
@@ -154,6 +155,9 @@ class RewardPredictor():
         right_obs = np.asarray([comp['right']['obs'] for comp in labeled_comparisons])
         right_acts = np.asarray([comp['right']['actions'] for comp in labeled_comparisons])
         labels = np.asarray([comp['label'] for comp in labeled_comparisons])
+        for name in glob.glob('Human_Preference/static/Collections/run[0-9]+'):
+            print('REMOVING ########',name)
+            os.remove(name)
  
         for i in range(self.args.reward_iter):
             with self.graph.as_default():

@@ -12,7 +12,8 @@ def _slice_path(path, segment_length, start_pos=0):
 
 def create_segment_q_states(segment):
     obs_Ds = segment["obs"]
-    act_Ds = segment["actions"]
+    act_Ds =segment["actions"]
+    # print(obs_Ds.shape,act_Ds.shape)
     return np.concatenate([obs_Ds, act_Ds], axis=1)
 
 
@@ -41,6 +42,10 @@ def do_rollout(env, policy_fn, sy_ob, session):
     # Primary environment loop
     for i in range(max_timesteps_per_episode):
         action = session.run(policy_fn, feed_dict={sy_ob: ob[None]})[0]
+        try:
+            action=np.squeeze(ac,axis=(0))
+        except:
+            pass
         # action = policy_fn(env, ob)
         obs.append(ob)
         actions.append(action)

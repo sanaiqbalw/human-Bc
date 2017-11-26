@@ -1,14 +1,14 @@
 [
     {
-        "uuid": "98035a5f-15f8-4ff9-aef8-46a90286237a",
-        "left": "static/Collections/run0/98035a5f-15f8-4ff9-aef8-46a90286237a-left.mp4",
-        "labels": null,
-        "right": "static/Collections/run0/98035a5f-15f8-4ff9-aef8-46a90286237a-right.mp4"
+        "labels": "1",
+        "right": "static/Collections/run2/36f62da0-419f-4285-b85a-9fc77756428c-right.mp4",
+        "uuid": "36f62da0-419f-4285-b85a-9fc77756428c",
+        "left": "static/Collections/run2/36f62da0-419f-4285-b85a-9fc77756428c-left.mp4"
     },
     {
-        "uuid": "b14630dd-72ee-49bd-adc8-84b75612785e",
-        "left": "static/Collections/run0/b14630dd-72ee-49bd-adc8-84b75612785e-left.mp4",
-        "labels": null,
-        "right": "static/Collections/run0/b14630dd-72ee-49bd-adc8-84b75612785e-right.mp4"
+        "labels": "1",
+        "right": "static/Collections/run2/fdd765f7-e4d4-4451-b081-ac80c01c8f2c-right.mp4",
+        "uuid": "fdd765f7-e4d4-4451-b081-ac80c01c8f2c",
+        "left": "static/Collections/run2/fdd765f7-e4d4-4451-b081-ac80c01c8f2c-left.mp4"
     }
 ]
