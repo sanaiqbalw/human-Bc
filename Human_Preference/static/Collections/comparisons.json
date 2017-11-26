@@ -1,20 +1,20 @@
 [
     {
         "labels": "0",
-        "right": "static/Collections/run0/e7b440c9-4697-4546-b5dd-05c3c080a952-right.mp4",
-        "uuid": "e7b440c9-4697-4546-b5dd-05c3c080a952",
-        "left": "static/Collections/run0/e7b440c9-4697-4546-b5dd-05c3c080a952-left.mp4"
+        "uuid": "03fc2567-edb5-4193-b8df-36f6f44631c9",
+        "left": "static/Collections/run2/03fc2567-edb5-4193-b8df-36f6f44631c9-left.mp4",
+        "right": "static/Collections/run2/03fc2567-edb5-4193-b8df-36f6f44631c9-right.mp4"
     },
     {
         "labels": "0",
-        "right": "static/Collections/run0/11afb3c9-5511-4582-8bc1-aac94840e984-right.mp4",
-        "uuid": "11afb3c9-5511-4582-8bc1-aac94840e984",
-        "left": "static/Collections/run0/11afb3c9-5511-4582-8bc1-aac94840e984-left.mp4"
+        "uuid": "ad2421be-16a5-4e23-b6d6-019c2554f143",
+        "left": "static/Collections/run2/ad2421be-16a5-4e23-b6d6-019c2554f143-left.mp4",
+        "right": "static/Collections/run2/ad2421be-16a5-4e23-b6d6-019c2554f143-right.mp4"
     },
     {
         "labels": "0",
-        "right": "static/Collections/run0/1e7738c8-c7b0-414c-a504-20b68a8071c6-right.mp4",
-        "uuid": "1e7738c8-c7b0-414c-a504-20b68a8071c6",
-        "left": "static/Collections/run0/1e7738c8-c7b0-414c-a504-20b68a8071c6-left.mp4"
+        "uuid": "0f86ec69-f37d-45f8-9911-75f203ee0086",
+        "left": "static/Collections/run2/0f86ec69-f37d-45f8-9911-75f203ee0086-left.mp4",
+        "right": "static/Collections/run2/0f86ec69-f37d-45f8-9911-75f203ee0086-right.mp4"
     }
 ]
