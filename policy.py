@@ -145,6 +145,7 @@ class PolicyPredictor():
 
 
     def train_bc_policy(self):
+        print("="*30)
         env = self.env
         expert_data, _ = get_expert_data(self.args.expert_policy_file, self.args.envname, self.args.max_timesteps, self.args.num_rollouts)
         print("Got rollouts from expert.")
@@ -153,8 +154,11 @@ class PolicyPredictor():
             with self.graph.as_default():
                 mb_obs, mb_acts = get_minibatch(expert_data, self.args.bc_minibatch_size)
                 _, training_loss = self.sess.run([self.train_step, self.loss_op], feed_dict={self.x: mb_obs, self.y: mb_acts})
+                reward_actual_in_env=self.get_rewards()
+
             if i%100==0:
                 print('BC LOSS:',i,training_loss)
+                print('BC mean REWARDS:',i,'--',reward_actual_in_env)
         print("Expert policy cloned.")
         print("="*30)
 
@@ -179,7 +183,10 @@ class PolicyPredictor():
                 with self.graph.as_default():
                     _, training_loss = self.sess.run([self.train_op_pg , self.loss_pg], feed_dict={self.x: mb_obs, self.y: mb_acts,self.reward:reward_obtained})
                 cost=np.mean(training_loss)
+                reward_actual_in_env=self.get_rewards()
+
             print('policy gradient Mean Loss:',i,cost)
+            print('BC mean REWARDS:',i,'--',reward_actual_in_env)
         print("finished policy gradient.")
         print("="*30)
         return self.nn_policy_a,self.x
@@ -196,6 +203,29 @@ class PolicyPredictor():
         with self.graph.as_default():
             action = self.sess.run(self.action,feed_dict={self.x:state})
         return action
-         
+
+
+    def get_rewards(self):
+        returns = []
+        horizon=int(self.args.num_timesteps)
+
+        for _ in range(self.args.num_rollouts):
+            obs = self.env.reset()
+            done = False
+            totalr = 0
+            steps = 0
+            while not done:
+                # Take steps by expanding observation (to get shapes to match).
+                exp_obs = np.expand_dims(obs, axis=0)
+                action = np.squeeze(self.sess.run(self.nn_policy_a, feed_dict={self.x: exp_obs}))
+                obs, r, done, _ = self.env.step(action)
+                totalr += r
+                steps += 1
+                # if args.render: env.render()
+                if steps >= horizon: break
+            returns.append(totalr)
+
+        return np.mean(returns)
+             
 
 

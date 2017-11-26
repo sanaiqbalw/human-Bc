@@ -70,7 +70,7 @@ def teach(session,policy,bc_policy, sy_ob,args):
 
 
 def parse_args():
-# python learn.py --expert_policy_file experts/Hopper-v1.pkl --envname Hopper-v1 --num_rollouts 3 --bc_training_epochs 10 --pretrain_labels 2 --num_iters 10
+# python learn.py --expert_policy_file experts/Hopper-v1.pkl --envname Hopper-v1 --num_rollouts 3 --bc_training_epochs 10 --pretrain_labels 5--num_iters 10 ----num_timesteps 5000 --reward_iter 10 --policy_iter 10
     parser = argparse.ArgumentParser()
     parser.add_argument('--expert_policy_file', type=str, default="experts/Hopper-v1.pkl")
     parser.add_argument('--envname', type=str, default="Hopper-v1")

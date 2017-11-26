@@ -1,14 +1,20 @@
 [
     {
-        "labels": "1",
-        "right": "static/Collections/run2/36f62da0-419f-4285-b85a-9fc77756428c-right.mp4",
-        "uuid": "36f62da0-419f-4285-b85a-9fc77756428c",
-        "left": "static/Collections/run2/36f62da0-419f-4285-b85a-9fc77756428c-left.mp4"
+        "labels": "0",
+        "right": "static/Collections/run0/e7b440c9-4697-4546-b5dd-05c3c080a952-right.mp4",
+        "uuid": "e7b440c9-4697-4546-b5dd-05c3c080a952",
+        "left": "static/Collections/run0/e7b440c9-4697-4546-b5dd-05c3c080a952-left.mp4"
     },
     {
-        "labels": "1",
-        "right": "static/Collections/run2/fdd765f7-e4d4-4451-b081-ac80c01c8f2c-right.mp4",
-        "uuid": "fdd765f7-e4d4-4451-b081-ac80c01c8f2c",
-        "left": "static/Collections/run2/fdd765f7-e4d4-4451-b081-ac80c01c8f2c-left.mp4"
+        "labels": "0",
+        "right": "static/Collections/run0/11afb3c9-5511-4582-8bc1-aac94840e984-right.mp4",
+        "uuid": "11afb3c9-5511-4582-8bc1-aac94840e984",
+        "left": "static/Collections/run0/11afb3c9-5511-4582-8bc1-aac94840e984-left.mp4"
+    },
+    {
+        "labels": "0",
+        "right": "static/Collections/run0/1e7738c8-c7b0-414c-a504-20b68a8071c6-right.mp4",
+        "uuid": "1e7738c8-c7b0-414c-a504-20b68a8071c6",
+        "left": "static/Collections/run0/1e7738c8-c7b0-414c-a504-20b68a8071c6-left.mp4"
     }
 ]
