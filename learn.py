@@ -67,22 +67,27 @@ def teach(session,policy,bc_policy, sy_ob,args):
 
         print("Done with the loop")
     print("Done with the training")
+    r=policy.get_rewards(render=True)
+    policy.record.to_csv('record.csv')
+
 
 
 def parse_args():
 # python learn.py --expert_policy_file experts/Hopper-v1.pkl --envname Hopper-v1 --num_rollouts 3 --bc_training_epochs 10 --pretrain_labels 5--num_iters 10 ----num_timesteps 5000 --reward_iter 10 --policy_iter 10
     parser = argparse.ArgumentParser()
-    parser.add_argument('--expert_policy_file', type=str, default="experts/Hopper-v1.pkl")
-    parser.add_argument('--envname', type=str, default="Hopper-v1")
+    # parser.add_argument('--expert_policy_file', type=str, default="experts/Hopper-v1.pkl")
+    # parser.add_argument('--envname', type=str, default="Hopper-v1")
+    parser.add_argument('--expert_policy_file', type=str, default="experts/Humanoid-v1.pkl")
+    parser.add_argument('--envname', type=str, default="Humanoid-v1")
     parser.add_argument('--render', action='store_true')
     parser.add_argument("--max_timesteps", type=int)
     parser.add_argument('--num_rollouts', type=int, default=25,
                         help='Number of expert roll outs')
-    parser.add_argument('--bc_training_epochs', type=int, default=2001,
+    parser.add_argument('--bc_training_epochs', type=int, default=300,
                         help='Number of training epochs for behavioral cloning')
     parser.add_argument('--bc_minibatch_size', type=int, default=10000,
                         help='Batch size for behavioral cloning')
-    parser.add_argument('--bc_learning_rate', type=float, default=0.001,
+    parser.add_argument('--bc_learning_rate', type=float, default=0.01,
                         help='Learning Rate for behavioral cloning')
     parser.add_argument('--bc_check_every', type=int, default=500,
                         help='Check Performance in this many epochs for behavioral cloning')
@@ -91,9 +96,9 @@ def parse_args():
     parser.add_argument('--num_iters', default=5, type=int,
                         help='Number of iterations')
     parser.add_argument('--num_timesteps', default=5e6, type=int)
-    parser.add_argument('--reward_iter', type=int, default=10,
+    parser.add_argument('--reward_iter', type=int, default=1000,
                     help='number of iterations for training reward under one labelling set')
-    parser.add_argument('--policy_iter', type=int, default=10,
+    parser.add_argument('--policy_iter', type=int, default=100,
                     help='number of iterations for training policy under one reward function')
 
 

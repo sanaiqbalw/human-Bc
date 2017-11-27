@@ -139,7 +139,7 @@ class RewardPredictor():
         ob=ob.reshape(1,1, self.obs_shape[-1])
         ac=ac.reshape(1,1, self.act_shape[-1])
         """Predict the reward for each step in a given path"""
-        with self.graph.as_default():
+        with self.graph.as_default(): 
             q_value = self.sess.run(self.q_value, feed_dict={
                 self.segment_obs_placeholder: np.asarray(ob),
                 self.segment_act_placeholder: np.asarray(ac),

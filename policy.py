@@ -3,7 +3,7 @@ import gym
 import numpy as np
 import tensorflow as tf
 import scipy.signal
-
+import pandas as pd
 # import matplotlib.pyplot as plt
 
 
@@ -37,6 +37,10 @@ class PolicyPredictor():
         self.graph = self.build_graph()
         self.sess.run(tf.global_variables_initializer())
         self.sess.run(tf.local_variables_initializer())
+        self.record=pd.DataFrame(columns=('iteration', 'loss_action', 'wighted_loss','rewards','name'))
+        self.record.to_csv('record.csv')
+        
+        # self.saver.save(self.sess, 'policy.ckpt')
 
     
     def policy_rollout(self,reward_fn):
@@ -158,11 +162,16 @@ class PolicyPredictor():
                 _, training_loss = self.sess.run([self.train_step, self.loss_op], feed_dict={self.x: mb_obs, self.y: mb_acts})
                 reward_actual_in_env=self.get_rewards()
 
+                self.record = self.record.append([{'iteration':i,'loss_action':training_loss,'wighted_loss':0,'rewards':reward_actual_in_env,'name':'bc'}], ignore_index=True)
+
             if i%50==0:
                 print('BC LOSS:',i,training_loss)
                 print('BC mean REWARDS:',i,'--',reward_actual_in_env)
         print("Expert policy cloned.")
         print("="*30)
+        # r=self.get_rewards(render=True)
+
+
 
         return self.nn_policy_a,self.x
 
@@ -188,15 +197,20 @@ class PolicyPredictor():
             cost=0
             for path in range(len(paths)):
                 with self.graph.as_default():
-                    _, training_loss = self.sess.run([self.train_op_pg , self.loss_pg], feed_dict={self.x: mb_obs, self.y: mb_acts,self.reward:reward_obtained})
+                    _, training_loss,bc_loss = self.sess.run([self.train_op_pg , self.loss_pg,self.loss_op], feed_dict={self.x: mb_obs, self.y: mb_acts,self.reward:reward_obtained})
                 cost=np.mean(training_loss)
+                bc_cost=bc_loss
                 reward_actual_in_env=self.get_rewards()
-            if i%50==0:
+                self.record = self.record.append([{'iteration':i,'loss_action':bc_loss,'wighted_loss':training_loss,'rewards':reward_actual_in_env,'name':'pg'+str(self.args.num_iters)}], ignore_index=True)
+
+            if i%20==0:
 
                 print('policy gradient Mean Loss:',i,cost)
+                print('policy gradient Mean Loss  diff actions:',i,bc_cost)
                 print('policy gradient Mean Reward:',i,'--',reward_actual_in_env)
         print("finished policy gradient.")
         print("="*30)
+        # r=self.get_rewards(render=True)
         return self.nn_policy_a,self.x
         
 
@@ -214,7 +228,7 @@ class PolicyPredictor():
         return action
 
 
-    def get_rewards(self):
+    def get_rewards(self,render=False):
         returns = []
         horizon=int(self.args.num_timesteps)
 
@@ -230,7 +244,7 @@ class PolicyPredictor():
                 obs, r, done, _ = self.env.step(action)
                 totalr += r
                 steps += 1
-                # if args.render: env.render()
+                if render: self.env.render()
                 if steps >= horizon: break
             returns.append(totalr)
 
@@ -242,6 +256,9 @@ class PolicyPredictor():
         out[i] = in[i] + gamma * in[i+1] + gamma^2 * in[i+2] + ...
         """
         return scipy.signal.lfilter([1],[1,-gamma],x[::-1], axis=0)[::-1]
+
+    def load_policy(self):
+        self.saver.restore(self.sess, 'policy.ckpt')
                  
 
 
