@@ -38,7 +38,7 @@ class PolicyPredictor():
         self.sess.run(tf.global_variables_initializer())
         self.sess.run(tf.local_variables_initializer())
         self.record=pd.DataFrame(columns=('iteration', 'loss_action', 'wighted_loss','rewards','name'))
-        self.record.to_csv('record.csv')
+       
         
         # self.saver.save(self.sess, 'policy.ckpt')
 
